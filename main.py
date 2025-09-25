@@ -5,7 +5,8 @@ reviews = ["Eu gostei bastante da câmera é a primeira vez que eu tiro foto com
 
 from langchain.prompts import PromptTemplate
 from langchain_openai import ChatOpenAI
-from langchain_core.output_parsers import JsonOutputParser
+from langchain_core.output_parsers import JsonOutputParser, StrOutputParser
+from langchain_core.runnables import RunnableLambda
 from pydantic import BaseModel, Field
 from dotenv import load_dotenv
 
@@ -32,9 +33,37 @@ template_final = (template_context + template_idiom + template_format)
 
 model = ChatOpenAI()
 
-prompt = template_final. invoke({"reviews": reviews})
-answer = model.invoke(prompt)
-answer = parser.invoke(answer)
-print(answer)
+chain = template_final | model | parser
+
+#answer = chain.invoke({"reviews": reviews})
+
+
+
+template_analyses = PromptTemplate.from_template("""
+Analise a seguinte lista de reviews de um produto e me diga:
+1. Quantas reviews são positivas e quantas são negativas (e o percentual de reviews positivas do total)
+2. Qual percentual de reviews diz que vale a pena comprar o produto
+3. O ponto positivo que mais aparece e o ponto negativo que mais aparece.
+A lista de reviews é essa: {avaliations}
+""")
+
+parser_text = StrOutputParser()
+
+chain_analyses = template_analyses | model |parser_text
+
+def save_db(dic_avaliation):
+    with open("reviews.txt", "w", encoding="utf-8") as file:
+        for avaliation in dic_avaliation["avaliations"]:
+            file.write(f"{avaliation}\n")
+    return dic_avaliation
+
+runnable_save_db = RunnableLambda(save_db)
+
+global_chain = chain | runnable_save_db | chain_analyses
+
+#answer_analyses = chain_analyses.invoke({"reviews_list": answer})
+answer_analyses = global_chain.invoke({"reviews": reviews})
+
+print(answer_analyses)
 
 

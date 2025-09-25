@@ -1,0 +1,4 @@
+{'review_positive': True, 'really_good': True, 'good_points': ['foto de qualidade'], 'bad_points': []}
+{'review_positive': True, 'really_good': True, 'good_points': ['top de linha', 'procedência verificada', 'brinde maravilhoso'], 'bad_points': []}
+{'review_positive': True, 'really_good': True, 'good_points': ['custo benefício', 'conectividade', 'fácil de aprender'], 'bad_points': []}
+{'review_positive': True, 'really_good': False, 'good_points': ['apresentação boa'], 'bad_points': ['tamanho']}
